@@ -1,0 +1,91 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LUCCY AI</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#050914;color:#eaf7ff;font-family:Arial,sans-serif;text-align:center}
+header{padding:24px;color:#55dfff;font-size:27px;letter-spacing:4px}
+.core{width:155px;height:155px;border:3px solid #28cfff;border-radius:50%;margin:35px auto;display:grid;place-items:center;box-shadow:0 0 30px #087bba,inset 0 0 25px #087bba}
+.core span{font-size:48px;color:#65eaff}
+#status{color:#8cdbef;margin:20px}
+button{background:#07334a;color:white;border:1px solid #28cfff;border-radius:25px;padding:14px 22px;margin:7px;font-size:16px}
+input{width:85%;padding:15px;border-radius:20px;background:#101d2d;color:white;border:1px solid #28cfff}
+#chat{margin:20px auto;width:90%;max-width:500px;text-align:left}
+.msg{padding:12px;margin:10px 0;background:#10243a;border-radius:12px;overflow-wrap:anywhere}
+footer{color:#71899a;font-size:12px;margin:30px}
+</style>
+</head>
+<body>
+<header>LUCCY AI</header>
+<div class="core"><span>✦</span></div>
+<div id="status">YOUR AI ASSISTANT IS READY</div>
+<button onclick="listen()">🎙 TALK TO LUCCY</button>
+<div id="chat">
+<div class="msg">LUCCY: Hello! I am Luccy. How can I help you?</div>
+</div>
+<input id="message" placeholder="Type your message...">
+<button onclick="send()">SEND</button>
+<button onclick="speak('Hello! I am Luccy.')">🔊 TEST VOICE</button>
+<footer>LUCCY AI • YOUR PERSONAL ASSISTANT</footer>
+<script>
+const chat=document.getElementById("chat");
+const statusText=document.getElementById("status");
+
+function addMessage(who,text){
+ const d=document.createElement("div");
+ d.className="msg";
+ d.textContent=who+": "+text;
+ chat.appendChild(d);
+}
+
+function speak(text){
+ const u=new SpeechSynthesisUtterance(text);
+ u.lang="en-IN";
+ u.rate=1;
+ const voices=speechSynthesis.getVoices();
+ const female=voices.find(v=>/female/i.test(v.name));
+ if(female)u.voice=female;
+ speechSynthesis.speak(u);
+}
+
+function reply(text){
+ let answer="I heard you. My AI brain will be connected in the next development step.";
+ if(text.includes("hello")||text.includes("hi"))answer="Hello! I am Luccy. Nice to hear from you.";
+ else if(text.includes("time"))answer="The time is "+new Date().toLocaleTimeString();
+ else if(text.includes("date"))answer="Today is "+new Date().toDateString();
+ else if(text.includes("your name"))answer="My name is Luccy AI.";
+ addMessage("LUCCY",answer);
+ speak(answer);
+ statusText.textContent="READY";
+}
+
+function send(){
+ const box=document.getElementById("message");
+ const text=box.value.trim().toLowerCase();
+ if(!text)return;
+ addMessage("YOU",box.value);
+ box.value="";
+ reply(text);
+}
+
+function listen(){
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){statusText.textContent="VOICE INPUT NOT SUPPORTED IN THIS BROWSER";return;}
+ const r=new SR();
+ r.lang="en-IN";
+ r.onstart=()=>statusText.textContent="LISTENING...";
+ r.onresult=e=>{
+  const text=e.results[0][0].transcript;
+  document.getElementById("message").value=text;
+  send();
+ };
+ r.onerror=()=>statusText.textContent="PLEASE TRY AGAIN";
+ r.onend=()=>statusText.textContent="READY";
+ r.start();
+}
+</script>
+</body>
+</html>
